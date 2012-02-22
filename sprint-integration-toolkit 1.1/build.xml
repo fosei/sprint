@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="sprint-integration-toolkit" default="build" basedir=".">
+	<description>Build file for sample web service client project</description>
+	<property environment="env"/>
+
+	<!-- Global properties for this build.  You shouldn't need to change these. -->
+	<property name="src" location="src"/>
+	<property name="build" location="build"/>
+	<property name="dist" location="dist"/>
+	<property name="lib" location="lib"/>
+	<property name="gensrc" location="gensrc"/>
+	<property name="resources" location="resources"/>
+	<property name="tools" location="tools"/>
+	
+	<!-- CHANGE THESE FOR YOUR PROJECT -->
+	<!-- Name of the java class used to test the service. -->
+	<property name="client-service-name" value="TestQuerySystemStatus"/>
+	
+	<property name="client-service-querycsa" value="com.tscp.mvno.sprint.api.QueryCsaClient"/>
+	
+	<property name="client-service-subscription" value="com.tscp.mvno.sprint.api.SubscriptionClient"/>
+	
+	<property name="client-service-subscriptiondetail" value="com.tscp.mvno.sprint.api.SubscriptionDetailClient"/>
+	
+	<property name="client-service-subscriptionmodify" value="com.tscp.mvno.sprint.api.SubscriptionModifyClient"/>
+	
+	<property name="client-service-swapsplit" value="com.tscp.mvno.sprint.api.SwapSplitClient"/>
+	
+	<property name="client-service-wnp" value="com.tscp.mvno.sprint.api.WnpClient"/>
+	
+	<property name="client-service-usage" value="com.tscp.mvno.sprint.api.UsageInquiryClient"/>
+	
+	<property name="client-service-portmessage" value="com.tscp.mvno.sprint.api.PortMessageClient"/>
+	
+	<!-- END OF EDITABLE PROPERTIES -->
+			
+	<path id="project.classpath">
+		<fileset dir="${lib}">
+			<include name="*.jar"/>
+		</fileset>
+	</path>
+	
+	<property name="classpath" refid="project.classpath"/>
+
+	<!-- Load project-specific properties -->
+	<loadproperties srcFile="resources/client.properties"/>
+	
+	<!-- Import Axis-specific ant tasks, such as WSDL2Java -->
+	<taskdef resource="axis-tasks.properties" classpathref="project.classpath"/>	
+
+	<target name="probe-proxy" depends="init">
+		<condition property="proxy.enabled">
+		  <and>
+			<isset property="proxy.host"/>
+			<isreachable host="${proxy.host}"/>
+		  </and>
+		</condition>
+  </target>
+
+  <target name="proxy" depends="probe-proxy" if="proxy.enabled">
+    <property name="proxy.port" value="80"/>
+    <property name="proxy.user" value=""/>
+    <property name="proxy.pass" value=""/>
+    <setproxy proxyhost="${proxy.host}" proxyport="${proxy.port}"
+      proxyuser="${proxy.user}" proxypassword="${proxy.pass}"/>
+  </target>
+
+			
+	<target name="init-env-check">
+		<condition property="env-error-condition" value="true">
+			<or>
+				<not>
+						<isset property="${env.JAVA_HOME}"/>
+				</not>
+				<not>
+						<isset property="${env.ANT_HOME}"/>
+				</not>				
+				<not>
+						<isset property="${signed.service.location.url}"/>
+				</not>
+				<not>
+						<isset property="${anon.service.location.url}"/>
+				</not>
+			</or>
+		</condition>
+	</target>
+	
+	<target name="env-fail-check" depends="init-env-check" if="${env-error-condition}">
+		<fail message="One or more required environment variables are not set.  Please check the output of ant env-help."/>	
+	</target>
+	
+	<target name="env-help" description="Help description of env variables">
+		<echo message=" 	The following variables must be set in your environment:"/>
+		<echo message="		JAVA_HOME	: Directory where jdk is installed.  e.g. C:/Java/jdk1.4.2_12"/>
+		<echo message="		ANT_HOME		: Directory where ant is installed.  e.g. C:/apache-ant-1.7.0"/>		
+		<echo message="		anon.service.location.url		:	check resources/client.properties"/>
+		<echo message="		signed.service.location.url	:	check resources/client.properties"/>		
+		<antcall target="env-info"/>
+	</target>
+	
+	<target name="env-info" description="Prints env settings">
+		<echo message="ant.project.name			=  ${ant.project.name}"/>
+		<echo message="JAVA_HOME				=	${env.JAVA_HOME}"/>
+		<echo message="ANT_HOME				=	${env.ANT_HOME}"/>		
+		<echo message="CLASSPATH				=  ${classpath}"/>
+		<echo message="anon.service.location.url		= ${anon.service.location.url}"/>
+		<echo message="signed.service.location.url	= ${signed.service.location.url}"/>
+	</target>
+	
+	<target name="usage" description="Prints usage message">
+		<echo message="build:	Builds the entire project and all dependencies."/>
+		<echo message="gen-src: Generates the source code from the target web service wsdl."/>
+		<echo message="compile: Compiles the source code."/>
+		<echo message="clean: Removes compiled classes for a clean build."/>
+		<echo message="deep-clean: Returns env to pristine state by removing ALL derived files, including dist and gen-src. USE WITH CARE."/>
+		<echo message="usage: Prints this message"/>
+	</target>
+	
+	<target name="init" depends="env-fail-check">
+		<!-- Create the build directory structure used by compile -->
+		<mkdir dir="${build}"/>
+		<mkdir dir="${dist}"/>
+		<mkdir dir="${gensrc}"/>
+	</target>
+	
+	<target name="build" depends="init, env-info, proxy" description="Compile the source.">
+		<!-- Compile the java code from ${src} into ${build} -->
+		<javac destdir="${build}" deprecation="on" debug="true">
+			<src path="${src}"/>
+			<!-- include the generated sources from the WSDL -->
+			<src path="${gensrc}"/>
+			<!--classpath refid="project.class.path"/-->
+			<classpath>
+				<pathelement path="${classpath}"/>
+			</classpath>
+		</javac>
+	</target>
+	
+	<target name="dist" depends="build" description="Creates a jar of the project for distribution and/or app server deployment.">
+		<jar destfile="${dist}/${ant.project.name}.jar" basedir="${build}"/>
+	</target>
+	
+	<target name="get-wsdl" depends="init, proxy" description="Retrieve a static copy of the hosted WSDL (signed URL).">
+		<get src="${signed.service.location.url}?wsdl" 
+			dest="${resources}/service.wsdl" 
+			verbose="true"
+			usetimestamp="true"/>
+	</target>
+        
+        <target name="get-wsdl-port" depends="init, proxy" description="Retrieve a static copy of the Port WSDL.">
+		<get src="${wholesale.port.message.service.location.url}?wsdl"
+			dest="${resources}/PortMessageService.wsdl"
+			verbose="true"
+			usetimestamp="true"/>
+	</target>
+	
+	<target name="gen-src" depends="init, proxy" description="Generate the client code from the wsdl">
+		<axis-wsdl2java output="${gensrc}" testcase="true" verbose="true" url="${signed.service.location.url}?wsdl">
+		</axis-wsdl2java>
+	</target>
+	
+	<target name="gen-querycsa" depends="init, proxy" description="Generate the client code from the QueryCSA wsdl">
+		<axis-wsdl2java output="${gensrc}" testcase="true" verbose="true" url="${wholesale.query.csa.service.location.url}?wsdl">
+		</axis-wsdl2java>
+	</target>
+	
+	<target name="gen-subdetail" depends="init, proxy" description="Generate the client code from the Subscription Detail wsdl">
+		<axis-wsdl2java output="${gensrc}" testcase="true" verbose="true" url="${wholesale.subscription.detail.service.location.url}?wsdl">
+		</axis-wsdl2java>
+	</target>	
+	
+	<target name="gen-modifiysub" depends="init, proxy" description="Generate the client code from the Modify Subscription wsdl">
+		<axis-wsdl2java output="${gensrc}" testcase="true" verbose="true" url="${wholesale.subscription.modify.service.location.url}?wsdl">
+		</axis-wsdl2java>
+	</target>	
+	
+	<target name="gen-sub" depends="init, proxy" description="Generate the client code from the Subscription wsdl">
+		<axis-wsdl2java output="${gensrc}" testcase="true" verbose="true" url="${wholesale.subscription.service.location.url}?wsdl">
+		</axis-wsdl2java>
+	</target>	
+	
+	<target name="gen-swapsplit" depends="init, proxy" description="Generate the client code from the Swap Split wsdl">
+		<axis-wsdl2java output="${gensrc}" testcase="true" verbose="true" url="${wholesale.swap.split.service.location.url}?wsdl">
+		</axis-wsdl2java>
+	</target>	
+	
+	<target name="gen-usage" depends="init, proxy" description="Generate the client code from the Usage Inquiry wsdl">
+		<axis-wsdl2java output="${gensrc}" testcase="true" verbose="true" url="${wholesale.usage.inquiry.service.location.url}?wsdl">
+		</axis-wsdl2java>
+	</target>	
+	
+	<target name="gen-portmessage" depends="init, proxy" description="Generate the client code from Port Message Service WSDL">
+		<axis-wsdl2java output="${gensrc}" testcase="true" verbose="true" wraparrays="true" url="${wholesale.port.message.service.location.url}?wsdl">
+		</axis-wsdl2java>
+	</target>
+		
+        <target name="gen-wnp" depends="init, proxy" description="Generate the client code from the WNP wsdl">
+		<axis-wsdl2java output="${gensrc}" testcase="true" verbose="true" url="${wholesale.wnp.service.location.url}?wsdl">
+		</axis-wsdl2java>
+	</target>	
+		
+	<target name="run-signed" depends="dist">
+		<java classname="${client-service-name}" fork="true" failonerror="true">
+			<classpath>
+				<pathelement path="${classpath};${dist}/${ant.project.name}.jar;${resources};."/>
+			</classpath>
+			<sysproperty key="client.crypto.file.location" value="client-crypto.properties"/>
+			<sysproperty key="client.deploy.file.location" value="client-sign-deploy.wsdd"/>
+			<sysproperty key="url" value="${signed.service.location.url}"/>			
+		</java>
+	</target>
+	
+	<target name="run-anon" depends="dist">
+		<java classname="${client-service-name}" fork="false" failonerror="true">
+			<classpath>
+				<pathelement path="${classpath};${dist}/${ant.project.name}.jar;${resources};."/>
+			</classpath>
+			<sysproperty key="client.crypto.file.location" value="client-crypto.properties"/>
+			<sysproperty key="client.deploy.file.location" value="client-nosign-deploy.wsdd"/>
+			<sysproperty key="url" value="${anon.service.location.url}"/>
+		</java>
+	</target>
+	
+	<target name="run-querycsa" depends="dist">
+		<java classname="${client-service-querycsa}" fork="false" failonerror="true">
+			<classpath>
+				<pathelement path="${classpath};${dist}/${ant.project.name}.jar;${resources};."/>
+			</classpath>
+			<sysproperty key="client.crypto.file.location" value="client-crypto.properties"/>
+			<sysproperty key="client.deploy.file.location" value="client-sign-deploy.wsdd"/>
+			<sysproperty key="url" value="${wholesale.query.csa.service.location.url}"/>			
+		</java>
+	</target>
+	
+	<target name="run-subscription" depends="dist">
+		<java classname="${client-service-subscription}" fork="false" failonerror="true">
+			<classpath>
+				<pathelement path="${classpath};${dist}/${ant.project.name}.jar;${resources};."/>
+			</classpath>
+			<sysproperty key="client.crypto.file.location" value="client-crypto.properties"/>
+			<sysproperty key="client.deploy.file.location" value="client-sign-deploy.wsdd"/>
+			<sysproperty key="url" value="${wholesale.subscription.service.location.url}"/>
+		</java>
+	</target>
+	
+	<target name="run-subscriptiondetail" depends="dist">
+		<java classname="${client-service-subscriptiondetail}" fork="false" failonerror="true">
+			<classpath>
+				<pathelement path="${classpath};${dist}/${ant.project.name}.jar;${resources};."/>
+			</classpath>
+			<sysproperty key="client.crypto.file.location" value="client-crypto.properties"/>
+			<sysproperty key="client.deploy.file.location" value="client-sign-deploy.wsdd"/>
+			<sysproperty key="url" value="${wholesale.subscription.detail.service.location.url}"/>
+		<!--	<arg value="003"/>-->
+			<!--<arg value="tscp"/>-->
+			<!--<arg value="0000"/>-->
+			<!--<arg value="NEVSDG619"/>-->
+		</java>
+	</target>
+	
+	<target name="run-subscriptionmodify" depends="dist">
+		<java classname="${client-service-subscriptionmodify}" fork="false" failonerror="true">
+			<classpath>
+				<pathelement path="${classpath};${dist}/${ant.project.name}.jar;${resources};."/>
+			</classpath>
+			<sysproperty key="client.crypto.file.location" value="client-crypto.properties"/>
+			<sysproperty key="client.deploy.file.location" value="client-sign-deploy.wsdd"/>
+			<sysproperty key="url" value="${wholesale.subscription.modify.service.location.url}"/>
+		</java>
+	</target>
+	
+	<target name="run-swapsplit" depends="dist">
+		<java classname="${client-service-swapsplit}" fork="false" failonerror="true">
+			<classpath>
+				<pathelement path="${classpath};${dist}/${ant.project.name}.jar;${resources};."/>
+			</classpath>
+			<sysproperty key="client.crypto.file.location" value="client-crypto.properties"/>
+			<sysproperty key="client.deploy.file.location" value="client-sign-deploy.wsdd"/>
+			<sysproperty key="url" value="${wholesale.swap.split.service.location.url}"/>
+		</java>
+	</target>
+	
+	<target name="run-wnp" depends="dist">
+		<java classname="${client-service-wnp}" fork="false" failonerror="true">
+			<classpath>
+				<pathelement path="${classpath};${dist}/${ant.project.name}.jar;${resources};."/>
+			</classpath>
+			<sysproperty key="client.crypto.file.location" value="client-crypto.properties"/>
+			<sysproperty key="client.deploy.file.location" value="client-sign-deploy.wsdd"/>
+			<sysproperty key="url" value="${wholesale.wnp.service.location.url}"/>
+		</java>
+	</target>
+	
+	<target name="run-usage" depends="dist">
+		<java classname="${client-service-usage}" fork="false" failonerror="true">
+			<classpath>
+				<pathelement path="${classpath};${dist}/${ant.project.name}.jar;${resources};."/>
+			</classpath>
+			<sysproperty key="client.crypto.file.location" value="client-crypto.properties"/>
+			<sysproperty key="client.deploy.file.location" value="client-sign-deploy.wsdd"/>
+			<sysproperty key="url" value="${wholesale.usage.inquiry.service.location.url}"/>
+		</java>
+	</target>
+	
+	<target name="run-portmessage" depends="dist">
+		<java classname="${client-service-portmessage}" fork="false" failonerror="true">
+			<classpath>
+				<pathelement path="${classpath};${dist}/${ant.project.name}.jar;${resources};."/>
+			</classpath>
+			<sysproperty key="client.crypto.file.location" value="client-crypto.properties"/>
+			<sysproperty key="client.deploy.file.location" value="client-sign-deploy.wsdd"/>
+			<sysproperty key="url" value="${wholesale.port.message.service.location.url}"/>
+			<!--<arg value="999"/>
+			<arg value="dta"/>
+			<arg value="000000"/>
+			<arg value="20090101"/>
+			<arg value="20090701"/>
+			<arg value="POR"/>-->
+		</java>
+	</target>
+		
+	<target name="clean" description="clean up">
+		<!-- Delete the ${build} and ${dist} directory trees -->
+		<delete dir="${build}"/>
+		<delete dir="${dist}"/>
+	</target>
+	
+	<!-- THIS TARGET REMOVES ALL BACKUP COPIES OF PROJECT FILES, SO ONLY INVOKE THIS ONE IF YOU KNOW WHAT YOU'RE DOING! -->
+	<target name="deep-clean" depends="clean" description="Returns the env to a pristine state for starting from scratch.">
+		<delete dir="${gensrc}"/>
+		<delete verbose="true">
+			<fileset dir="." includes="**/*~ *.bak *.keep *.swp *.log" defaultexcludes="no"/>
+		</delete>
+	</target>
+	
+	<!-- Launches the TCP monitor, which enables you to snoop your own TCP traffic -->
+	<target name="tcpmon" depends="env-fail-check, proxy">
+		<java classname="org.apache.axis.utils.tcpmon" fork="true">
+			<classpath>
+				<pathelement path="${classpath}"/>
+			</classpath>
+		</java>
+	</target>
+	
+	<!-- Launches the KeyToolGui in the tools directory -->
+	<target name="keytool" depends="env-fail-check">
+		<java jar="${tools}/KeyToolGui-1.7/ktg-17.jar" fork="true"/>
+	</target>
+	
+</project>

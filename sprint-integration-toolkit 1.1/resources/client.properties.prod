@@ -1,0 +1,64 @@
+#=========================================
+# Web Services Client Properties File
+#=========================================
+
+# This file specifies most of the configurable properties for the project.
+# Use this file to configure the URLs, proxy configuration, and test data for 
+# the java client.  Build.xml reads this file for the target URLs and proxy 
+# configuration.
+
+# URL for the digitally-signed service
+signed.service.location.url=http://webservicesgatewaytest.sprint.com/services/demo/secured/QuerySystemStatusService/v1
+
+# URL for the anonymous service
+anon.service.location.url=http://webservicesgatewaytest.sprint.com/services/demo/QuerySystemStatusService/v1
+
+# URL for QueryCsa Service
+#wholesale.query.csa.service.location.url=http://webservicesgatewayrtb2-sen.corp.sprint.com/services/WholesaleQueryCsaService/v1
+#wholesale.query.csa.service.location.url=https://webservicesgatewaytest.sprint.com:444/services/mvno/WholesaleQueryCsaService/v1
+wholesale.query.csa.service.location.url=https://webservicesgatewaytest.sprint.com:444/services/mvno/rtb2/WholesaleQueryCsaService/v1
+#wholesale.query.csa.service.location.url=https://webservicesgateway.sprint.com:444/services/mvno/QueryCsaService/v1
+
+# URL for Subscription Detail Service
+#wholesale.subscription.detail.service.location.url=https://webservicesgatewaytest.sprint.com:444/services/mvno/WholesaleSubscriptionDetailService/v1
+wholesale.subscription.detail.service.location.url=https://webservicesgatewaytest.sprint.com:444/services/mvno/rtb2/WholesaleSubscriptionDetailService/v1
+#wholesale.subscription.detail.service.location.url=https://webservicesgateway.sprint.com:444/services/mvno/WholesaleSubscriptionDetailService/v1
+
+# URL for Modify Subscription Service
+#wholesale.subscription.modify.service.location.url=https://webservicesgatewaytest.sprint.com:444/services/mvno/WholesaleSubscriptionModifyService/v1
+wholesale.subscription.modify.service.location.url=https://webservicesgatewaytest.sprint.com:444/services/mvno/rtb2/WholesaleSubscriptionModifyService/v1
+#wholesale.subscription.modify.service.location.url=https://webservicesgateway.sprint.com:444/services/mvno/WholesaleSubscriptionModifyService/v1
+
+# URL for Subscription Service
+#wholesale.subscription.service.location.url=https://webservicesgatewaytest.sprint.com:444/services/mvno/WholesaleSubscriptionService/v1
+wholesale.subscription.service.location.url=https://webservicesgatewaytest.sprint.com:444/services/mvno/rtb2/WholesaleSubscriptionService/v1
+#wholesale.subscription.service.location.url=https://webservicesgateway.sprint.com:444/services/mvno/WholesaleSubscriptionService/v1
+
+# URL for Swap Split Service
+#wholesale.swap.split.service.location.url=https://webservicesgatewaytest.sprint.com:444/services/mvno/WholesaleSwapSplitService/v1
+wholesale.swap.split.service.location.url=https://webservicesgatewaytest.sprint.com:444/services/mvno/rtb2/WholesaleSwapSplitService/v1
+#wholesale.swap.split.service.location.url=https://webservicesgateway.sprint.com:444/services/mvno/WholesaleSwapSplitService/v1
+
+# URL for Usage Inquiry Service
+#wholesale.usage.inquiry.service.location.url=https://webservicesgatewaytest.sprint.com:444/services/mvno/WholesaleUsageInquiryService/v1
+wholesale.usage.inquiry.service.location.url=https://webservicesgatewaytest.sprint.com:444/services/mvno/rtb2/WholesaleUsageInquiryService/v1
+#wholesale.usage.inquiry.service.location.url=https://webservicesgateway.sprint.com:444/services/mvno/WholesaleUsageInquiryService/v1
+
+# URL for Wnp Service
+#wholesale.wnp.service.location.url=https://webservicesgatewaytest.sprint.com:444/services/mvno/WholesaleWnpService/v1
+wholesale.wnp.service.location.url=https://webservicesgatewaytest.sprint.com:444/services/mvno/rtb2/WholesaleWnpService/v1
+#wholesale.wnp.service.location.url=https://webservicesgateway.sprint.com:444/services/mvno/WholesaleWnpService/v1
+
+# URL for new Port Messaging System
+#wholesale.port.message.service.location.url=https://webservicesgatewaytest.sprint.com:444/services/mvno/WholesalePortMessageService/v1
+wholesale.port.message.service.location.url=https://webservicesgatewaytest.sprint.com:444/services/mvno/rtb2/WholesalePortMessageService/v1
+#wholsale.port.message.service.location.url=wsdl/WholesalePortMessageService.wsdl.wsdl
+
+# signed.service.location.url=http://localhost:8888/services/demo/QuerySystemStatusService/v1
+# signed.service.location.url=http://localhost:8888/services/demo/secured/QuerySystemStatusService/v1
+
+# Proxy Configuration.  Leave this commented out if no proxy is being used.
+# proxy.host=
+# proxy.port=
+# proxy.user=
+# proxy.pass=
