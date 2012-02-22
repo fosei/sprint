@@ -1,0 +1,24 @@
+#=========================================
+# Web Services Client Properties File
+#=========================================
+
+# This file specifies most of the configurable properties for the project.
+# Use this file to configure the URLs, proxy configuration, and test data for 
+# the java client.  Build.xml reads this file for the target URLs and proxy 
+# configuration.
+
+# URL for the digitally-signed service
+signed.service.location.url=http://webservicesgatewaytest.sprint.com/services/demo/secured/QuerySystemStatusService/v1
+
+# URL for the anonymous service
+anon.service.location.url=http://webservicesgatewaytest.sprint.com/services/demo/QuerySystemStatusService/v1
+
+# Sample URLs for troubleshooting with tcpmon
+# signed.service.location.url=http://localhost:8888/services/demo/QuerySystemStatusService/v1
+# signed.service.location.url=http://localhost:8888/services/demo/secured/QuerySystemStatusService/v1
+
+# Proxy Configuration.  Leave this commented out if no proxy is being used.
+# proxy.host=
+# proxy.port=
+# proxy.user=
+# proxy.pass=

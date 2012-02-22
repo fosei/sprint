@@ -1,0 +1,6 @@
+#=========================================
+# header.properties - contains properties
+# used to populate the SOAP header
+#=========================================
+
+header.namespace=http://integration.sprint.com/canonical/v1/interfaces/QuerySystemStatusWsdl/v1
