@@ -324,12 +324,14 @@ public class QueryCsaBindingStub extends org.apache.axis.client.Stub implements 
             if (super.maintainSessionSet) {
                 _call.setMaintainSession(super.maintainSession);
             }
+            /* SPRINT CSA FIX, THE REMOVAL OF THE AUTHORIZATION HEADERS IN THE HTTP REQUEST
             if (super.cachedUsername != null) {
                 _call.setUsername(super.cachedUsername);
             }
             if (super.cachedPassword != null) {
                 _call.setPassword(super.cachedPassword);
             }
+            */
             if (super.cachedEndpoint != null) {
                 _call.setTargetEndpointAddress(super.cachedEndpoint);
             }
